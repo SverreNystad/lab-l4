@@ -3,8 +3,14 @@ __pycache*
 
 # C extensions
 *.so
-.asm
-.sym
-.s
-.o
-.S
+*.asm
+*.sym
+*.s
+*.S
+*.d
+*.o
+*.img
+_*
+kernel
+mkfs
+initcode
