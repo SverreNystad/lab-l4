@@ -1,2 +1,10 @@
 *.out*
 __pycache*
+
+# C extensions
+*.so
+.asm
+.sym
+.s
+.o
+.S
