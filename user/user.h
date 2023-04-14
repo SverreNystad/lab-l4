@@ -26,9 +26,7 @@ struct user_proc
     int pid;              // Process ID
 
     int parent_id; // Parent process
-    char name[16]; // name
-
-    struct thread_table *threads;
+    char name[16]; // name of the process
 };
 
 // system calls
@@ -97,11 +95,7 @@ struct context
     uint64 s10;
     uint64 s11;
 };
-/// @brief This is the thread table, storing all threads of a process
-struct thread_table
-{
-    struct thread *threads[MAX_THREADS];
-};
+
 
 /// @brief The thread struct will contain all additional information we require
 ///        to handle for the threads. You might need to store more information
@@ -117,6 +111,7 @@ struct thread
 
     // Feel free to add more fields as needed
     struct lock *tLock;
+    
 };
 
 /// @brief These are the attributes that can be set when creating a thread.
