@@ -1,5 +1,4 @@
-// Set Thread
-#define MAX_THREADS 64;
+#define MAX_THREADS 64
 
 #define assert(cond)                                        \
     if (!(cond))                                            \
@@ -30,7 +29,7 @@ struct user_proc
     int parent_id; // Parent process
     char name[16]; // name
 
-    thread_table *threads;
+    struct thread_table *threads;
 };
 
 // system calls
@@ -103,7 +102,6 @@ struct context
 struct thread_table
 {
     struct thread *threads[MAX_THREADS];
-    uint8 current_thread;
 };
 
 /// @brief The thread struct will contain all additional information we require
@@ -119,6 +117,7 @@ struct thread
     void *(*func)(void *);
 
     // Feel free to add more fields as needed
+    struct lock tlock;
 };
 
 /// @brief These are the attributes that can be set when creating a thread.
