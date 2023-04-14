@@ -1,5 +1,4 @@
 #define MAX_THREADS 64
-
 #define assert(cond)                                        \
     if (!(cond))                                            \
     {                                                       \
@@ -117,7 +116,7 @@ struct thread
     void *(*func)(void *);
 
     // Feel free to add more fields as needed
-    struct lock tlock;
+    struct lock *tLock;
 };
 
 /// @brief These are the attributes that can be set when creating a thread.
