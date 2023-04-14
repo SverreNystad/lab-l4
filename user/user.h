@@ -99,11 +99,11 @@ struct context
     uint64 s10;
     uint64 s11;
 };
-
+/// @brief This is the thread table, storing all threads of a process
 struct thread_table
 {
     struct thread *threads[MAX_THREADS];
-    uint8 next_tid;
+    uint8 current_thread;
 };
 
 /// @brief The thread struct will contain all additional information we require
