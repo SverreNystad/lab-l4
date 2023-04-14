@@ -1,3 +1,6 @@
+// Set Thread
+#define MAX_THREADS 64;
+
 #define assert(cond)                                        \
     if (!(cond))                                            \
     {                                                       \
@@ -26,6 +29,8 @@ struct user_proc
 
     int parent_id; // Parent process
     char name[16]; // name
+
+    thread_table *threads;
 };
 
 // system calls
@@ -93,6 +98,12 @@ struct context
     uint64 s9;
     uint64 s10;
     uint64 s11;
+};
+
+struct thread_table
+{
+    struct thread *threads[MAX_THREADS];
+    uint8 next_tid;
 };
 
 /// @brief The thread struct will contain all additional information we require
