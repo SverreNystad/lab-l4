@@ -111,6 +111,8 @@ struct thread
 
     // Feel free to add more fields as needed
     int return_value;
+    // malloc(tcontext.sp, sizeof(struct thread))
+    
     
 };
 

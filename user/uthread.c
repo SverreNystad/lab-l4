@@ -1,4 +1,5 @@
 #include "kernel/types.h"
+// #include "kernal/riscv.h"
 #include "user.h"
 
 #define MAX_THREADS 64
@@ -31,30 +32,24 @@ void tsched()
     // struct user_proc *up;
     struct thread *t;
 
-
-    // c->proc = 0;
-    // intr_on();
-
-    // for (p = proc; p < &proc[NPROC]; p++)
-    // {
-    //     acquire(&p->lock);
-    //     if (p->state == RUNNABLE)
-    //     {
-    //         // Switch to chosen process.  It is the process's job
-    //         // to release its lock and then reacquire it
-    //         // before jumping back to us.
-    //         p->state = RUNNING;
-    //         c->proc = p;
-    //         swtch(&c->context, &p->context);
-
-    //         // Process is done running for now.
-    //         // It should have changed its p->state before coming back.
-    //         c->proc = 0;
-    //     }
-    //     release(&p->lock);
-    // }
+    // Loop through all threads in the thread table
+    for (t = threads[0]; t < &threads[MAX_THREADS]; t++)
+    {
+        // If the thread is runnable, switch to it
+        if (t->state == RUNNABLE)
+        {
+            current_thread = t;
+            t->state = RUNNING;
+            tswtch(&current_thread->tcontext, &t->tcontext);
+            t->state = RUNNABLE;
+        }
+    }
 }
 
+void tentry() 
+{
+    (current_thread->func(&current_thread->arg));
+}
 
 void tcreate(struct thread **thread, struct thread_attr *attr, void *(*func)(void *arg), void *arg)
 {
@@ -65,13 +60,26 @@ void tcreate(struct thread **thread, struct thread_attr *attr, void *(*func)(voi
     // Set the thread attributes
     (*thread)->tid = new_thread_id(); // Set the initial thread ID (you might need to implement a way to generate unique thread IDs)
     (*thread)->tcontext = (struct context) {0}; // Initialize the thread context to all zeros
+    
+    (*thread)->tcontext.ra = (uint64) &tentry; // Set the return address to the thread entry function
+    
+    // Set the stack pointer to the top of the stack
+    if (attr == 0)
+    {
+        attr->stacksize = 4096;
+        (*thread)->tcontext.sp = (uint64) malloc(4096); // same as pagesize
+    }
+    else 
+    {
+        (*thread)->tcontext.sp = (uint64) malloc(attr->stacksize);
+    }
     (*thread)->state = RUNNABLE;
     (*thread)->arg = arg; // Set the thread function argument
     (*thread)->func = func; // Set the thread function pointer
 
     add_thread_to_table(*thread);
 
-    (*thread)->return_value = (*thread)->func(arg);
+    // (*thread)->return_value = (*thread)->func(arg);
 }
 
 
@@ -82,10 +90,10 @@ int tjoin(int tid, void *status, uint size)
     // copy the result of the thread to the memory, status points to. Copy size bytes.
 
     thread_count--;
-    if (&status != 0 && size != 0)
-    {
-        memcpy(status, threads[tid]->return_value, size);
-    }
+    // if (&status != 0 && size != 0)
+    // {
+    //     memcpy(status, *(&threads[tid]->return_value), size);
+    // }
     return current_thread->return_value;
 }
 
