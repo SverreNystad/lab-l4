@@ -15,6 +15,6 @@ void main()
     // passing &t (taking the address of the pointer value)
     tcreate(&t, 0, &hello_world, 0);
     // Now, t points to an initialized thread struct
-
+    printf("t->tid = %d", t->tid);
     tyield();
 }

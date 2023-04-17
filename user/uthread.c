@@ -10,25 +10,27 @@ struct thread *threads[MAX_THREADS];
 struct thread *current_thread;
 int thread_count = 0;
 
+/// @brief Will find the next free thread ID
+uint8 new_thread_id()
+{
+    // convert int to uint8
+    uint8 new_tid = (uint8) thread_count++;
+    return new_tid;
+}
+
+void add_thread_to_table(struct thread *thread)
+{
+    threads[thread->tid] = thread;
+    thread_count++;
+    printf("Added thread %d to table, thread count: %d", thread->tid, thread_count);
+}
 
 void tsched()
 {
     // TODO: Implement a userspace round robin scheduler that switches to the next thread
     // struct user_proc *up;
     struct thread *t;
-    
-    for (int i = 0; i < MAX_THREADS; i++)
-    {
-        t = threads[i];
-        acquire(t->tLock);
-        if (t != 0 && t->state == RUNNABLE)
-        {
-            printf("Switching to thread %d)\n", t->tid);
-            current_thread = t;
-            t->state = RUNNING;
-        }
-        release(t->tLock);
-    }
+
 
     // c->proc = 0;
     // intr_on();
@@ -52,13 +54,7 @@ void tsched()
     //     release(&p->lock);
     // }
 }
-/// @brief Will find the next free thread ID
-uint8 new_thread_id()
-{
-    // convert int to uint8
-    uint8 new_tid = (uint8) thread_count++;
-    return new_tid;
-}
+
 
 void tcreate(struct thread **thread, struct thread_attr *attr, void *(*func)(void *arg), void *arg)
 {
@@ -72,14 +68,15 @@ void tcreate(struct thread **thread, struct thread_attr *attr, void *(*func)(voi
     (*thread)->state = RUNNABLE;
     (*thread)->arg = arg; // Set the thread function argument
     (*thread)->func = func; // Set the thread function pointer
-    // (*thread)->tLock = NULL; // Initialize the thread lock to NULL
-    (*thread)->tLock = (struct lock*) malloc(sizeof(struct lock));
-    char *name = "thread lock";
-    initlock((*thread)->tLock, name);
+    // Create a lock for the thread
+    // DOES NOT NEED TO A LOCK
+    // (*thread)->tLock = (struct lock*) malloc(sizeof(struct lock));
+    // char *name = "thread lock"; // TODO add thread id to name
+    // initlock((*thread)->tLock, name);
 
-    // Add the thread to the thread table
-    threads[(*thread)->tid] = *thread;
+    add_thread_to_table(*thread);
 
+    (*thread)->return_value = (*thread)->func(arg);
 }
 
 

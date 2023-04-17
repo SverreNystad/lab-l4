@@ -14,3 +14,5 @@ _*
 kernel
 mkfs
 initcode
+.gdbinit
+test.ans

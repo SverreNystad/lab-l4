@@ -110,7 +110,7 @@ struct thread
     void *(*func)(void *);
 
     // Feel free to add more fields as needed
-    struct lock *tLock;
+    int return_value;
     
 };
 
