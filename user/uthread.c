@@ -68,11 +68,6 @@ void tcreate(struct thread **thread, struct thread_attr *attr, void *(*func)(voi
     (*thread)->state = RUNNABLE;
     (*thread)->arg = arg; // Set the thread function argument
     (*thread)->func = func; // Set the thread function pointer
-    // Create a lock for the thread
-    // DOES NOT NEED TO A LOCK
-    // (*thread)->tLock = (struct lock*) malloc(sizeof(struct lock));
-    // char *name = "thread lock"; // TODO add thread id to name
-    // initlock((*thread)->tLock, name);
 
     add_thread_to_table(*thread);
 
@@ -87,25 +82,24 @@ int tjoin(int tid, void *status, uint size)
     // copy the result of the thread to the memory, status points to. Copy size bytes.
 
     thread_count--;
-    
-    return 0;
+    if (&status != 0 && size != 0)
+    {
+        memcpy(status, threads[tid]->return_value, size);
+    }
+    return current_thread->return_value;
 }
 
 void tyield()
 {
     // TODO: Implement the yielding behaviour of the thread
     // Switch to the next runnable thread
-    acquire(current_thread->tLock);
     current_thread->state = RUNNABLE;
-    release(current_thread->tLock);
     tsched();
 }
 
 uint8 twhoami()
 {
     // TODO: Returns the thread id of the current thread
-    acquire(current_thread->tLock);
     uint8 tid = current_thread->tid;
-    release(current_thread->tLock);
     return tid;
 }
