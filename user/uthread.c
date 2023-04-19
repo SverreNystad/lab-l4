@@ -33,16 +33,25 @@ void tsched()
     struct thread *t;
 
     // Loop through all threads in the thread table
-    for (t = threads[0]; t < &threads[MAX_THREADS]; t++)
+    for (t = thread[0]; t < (struct thread) &thread[NTHREAD]; t++)
     {
-        // If the thread is runnable, switch to it
+        
         if (t->state == RUNNABLE)
         {
+            // Switch to chosen process.  It is the process's job
+            // to release its lock and then reacquire it
+            // before jumping back to us.
+            currentThread->state = RUNNABLE; // er kanskje ikke nødvendig
+
+            struct thread *old_thread = current_thread;
             current_thread = t;
-            t->state = RUNNING;
-            tswtch(&current_thread->tcontext, &t->tcontext);
-            t->state = RUNNABLE;
+
+            tswtch(&old_thread->tcontext, &current_thread->tcontext);
+            current_thread->state = RUNNING;
+
+            // Process is done running for now.
         }
+        
     }
 }
 
