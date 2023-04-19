@@ -15,7 +15,7 @@ int thread_count = 0;
 uint8 new_thread_id()
 {
     // convert int to uint8
-    uint8 new_tid = (uint8) thread_count++;
+    uint8 new_tid = (uint8) thread_count + 1;
     return new_tid;
 }
 
