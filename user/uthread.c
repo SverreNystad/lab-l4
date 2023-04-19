@@ -62,13 +62,13 @@ void tcreate(struct thread **thread, struct thread_attr *attr, void *(*func)(voi
 {
     // TODO: Create a new process and add it as runnable, such that it starts running
     // once the scheduler schedules it the next time
+    printf("Creating new thread\n");
     *thread = (struct thread*) malloc(sizeof(struct thread));
     
     // Set the thread attributes
     (*thread)->tid = new_thread_id(); // Set the initial thread ID (you might need to implement a way to generate unique thread IDs)
+    printf("Thread ID: %d\n", (*thread)->tid);   
     (*thread)->tcontext = (struct context) {0}; // Initialize the thread context to all zeros
-    
-    (*thread)->tcontext.ra = (uint64) &tentry; // Set the return address to the thread entry function
     
     // Set the stack pointer to the top of the stack
     if (attr == 0)
@@ -79,9 +79,15 @@ void tcreate(struct thread **thread, struct thread_attr *attr, void *(*func)(voi
     {
         (*thread)->tcontext.sp = (uint64) malloc(attr->stacksize) + attr->stacksize;
     }
+    printf("Thread context sp: %d\n", (*thread)->tcontext.sp);
+    
+    (*thread)->tcontext.ra = (uint64) &tentry; // Set the return address to the thread entry function
+    printf("Thread context ra: %d\n", (*thread)->tcontext.ra);
+
     (*thread)->state = RUNNABLE;
     (*thread)->arg = arg; // Set the thread function argument
     (*thread)->func = func; // Set the thread function pointer
+    printf("Thread func pos: %d\n", (*thread)->tcontext.func);
 
     add_thread_to_table(*thread);
 }
