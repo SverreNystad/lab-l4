@@ -66,20 +66,17 @@ void tcreate(struct thread **thread, struct thread_attr *attr, void *(*func)(voi
     // Set the stack pointer to the top of the stack
     if (attr == 0)
     {
-        attr->stacksize = 4096;
-        (*thread)->tcontext.sp = (uint64) malloc(4096); // same as pagesize
+        (*thread)->tcontext.sp = (uint64) malloc(4096) + 4096; // same as pagesize
     }
     else 
     {
-        (*thread)->tcontext.sp = (uint64) malloc(attr->stacksize);
+        (*thread)->tcontext.sp = (uint64) malloc(attr->stacksize) + attr->stacksize;
     }
     (*thread)->state = RUNNABLE;
     (*thread)->arg = arg; // Set the thread function argument
     (*thread)->func = func; // Set the thread function pointer
 
     add_thread_to_table(*thread);
-
-    // (*thread)->return_value = (*thread)->func(arg);
 }
 
 
