@@ -33,7 +33,7 @@ void tsched()
     struct thread *t;
 
     // Loop through all threads in the thread table
-    for (t = thread[0]; t < (struct thread) &threads[NTHREAD]; t++)
+    for (t = thread[0]; t < (struct thread) &threads[MAX_THREADS]; t++)
     {
         
         if (t->state == RUNNABLE)
