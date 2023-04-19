@@ -45,10 +45,8 @@ void tsched()
 
             struct thread *old_thread = current_thread;
             current_thread = t;
-
-            tswtch(&old_thread->tcontext, &current_thread->tcontext);
             current_thread->state = RUNNING;
-
+            tswtch(&old_thread->tcontext, &current_thread->tcontext); // Must do all logic before tswtch it does not come back 
             // Process is done running for now.
         }
         
