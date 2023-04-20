@@ -6,10 +6,31 @@
 //
 // wrapper so that it's OK if main() does not call exit() and setup main thread.
 //
+struct arg
+{
+    int a;
+    char *b;
+};
+
 void _main(int argc, char *argv[])
 {
     // TODO: Ensure that main also is taken into consideration by the thread scheduler
     // TODO: This function should only return once all threads have finished running
+    extern int main(int argc, char *argv[]);
+
+    struct thread *main_thread = (struct thread *)malloc(sizeof(struct thread));
+
+    extern struct thread threads[MAX_THREADS];
+    extern struct thread *current_thread;
+    current_thread = main_thread;
+
+    threads[0] = *main_thread;
+
+    main_thread->tid = 0;
+    main_thread->tcontext = (struct context) {0}; // Initialize the thread context to all zeros
+    main_thread->tcontext.sp = (uint64) malloc(4096) + 4096; // same as pagesize
+    main_thread->state = RUNNABLE;
+
     extern int main(int argc, char *argv[]);
     int res = main(argc, argv);
     exit(res);
