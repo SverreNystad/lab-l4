@@ -110,7 +110,8 @@ struct thread
     void *(*func)(void *);
 
     // Feel free to add more fields as needed
-    int return_value;
+    
+    void *return_value;
     // malloc(tcontext.sp, sizeof(struct thread))
     
     
