@@ -4,28 +4,38 @@
 #define LIB_PREFIX "[UTHREAD]: "
 #define ulog() printf("%s%s\n", LIB_PREFIX, __FUNCTION__)
 
-struct lock tid_lock;
-int next_tid;
-struct thread *threads[64];
-struct thread *current_thread;
-int thread_count = 0;
 
+int thread_count;
+struct thread *threads[MAX_THREADS];
+struct thread *current_thread;
+
+/// @brief Will find the thread ID in the thread table
+int find_thread_index(struct thread *thread)
+{
+    for (int i = 0; i < MAX_THREADS; i++)
+    {
+        if (threads[i]->tid == thread->tid)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
 
 void tsched()
 {
-    int current_thread_index = current_thread->tid;
-    int next_thread_index = current_thread_index + 1;
+    int current_thread_index = find_thread_index(current_thread);
     struct thread *t;
-    for (int i = next_thread_index + 1; i % MAX_THREADS !=current_thread_index; i++){
-        // Find next runnable thread
-        t = (struct thread*) threads[i % MAX_THREADS];
 
-        if (t->state == RUNNABLE)
+    for (int i = current_thread_index+1; i % MAX_THREADS != current_thread_index; i++){
+        t=threads[i%MAX_THREADS];
+        if (t->state==RUNNABLE)
         {
-            t->state = RUNNING;
-            current_thread = t;
-            tswtch(&(threads[current_thread_index]->tcontext),&(t->tcontext));
-            break;
+            // Housekeeping
+            t->state=RUNNING;
+            current_thread=t;
+
+            tswtch(&(threads[current_thread_index]->tcontext), &(t->tcontext));
         }
     }
 }
@@ -37,12 +47,21 @@ uint8 new_thread_id()
     uint8 new_tid = (uint8) thread_count + 1;
     return new_tid;
 }
-
+/// @brief Will add a thread to the thread table and set state. 
 void add_thread_to_table(struct thread *thread)
 {
-    threads[thread->tid] = thread;
-    thread_count++;
-    // printf("Added thread %d to table, thread count: %d", thread->tid, thread_count);
+    struct thread *thread_in_table;
+    int i;
+
+    for (i = 0; i < MAX_THREADS; i++){
+        thread_in_table = threads[i];
+        if (thread_in_table->state == UNUSED || thread_in_table->state > EXITED)
+        {
+            threads[i] = thread;
+            threads[i]->state=RUNNABLE;
+            break;
+        }
+    }
 }
 
 /// @brief wrapper for the thread entry function to ensure that the thread can be setup correctly
@@ -86,12 +105,15 @@ void tcreate(struct thread **thread, struct thread_attr *attr, void *(*func)(voi
     // printf("Thread context ra: %d\n", (*thread)->tcontext.ra);
     (*thread)->arg = arg; // Set the thread function argument
     (*thread)->func = func; // Set the thread function pointer
+    (*thread)->return_value = malloc(attr->res_size);
+
     // printf("Thread func pos: %d\n", (*thread)->func);
     add_thread_to_table(*thread);
 }
 
 int tjoin(int tid, void *status, uint size)
 {
+    
     // TODO: Wait for the thread with TID to finish. If status and size are non-zero,
     // copy the result of the thread to the memory, status points to. Copy size bytes.
     struct thread *t;
@@ -107,7 +129,7 @@ int tjoin(int tid, void *status, uint size)
     if (t->tid != tid)
     {
         printf("[WARNING] tjoin could not find thread with given tid\n");
-        exit(1);
+        exit(-1);
     }
     while (t->state != EXITED)
     {
@@ -122,11 +144,12 @@ int tjoin(int tid, void *status, uint size)
     return 0;
 }
 
+
+
 void tyield()
 {
-    // TODO: Implement the yielding behaviour of the thread
-    // current_thread->state = RUNNABLE;
     tsched();
+    // TODO: Implement the yielding behaviour of the thread
 }
 
 uint8 twhoami()

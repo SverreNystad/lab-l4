@@ -1,4 +1,3 @@
-#define MAX_THREADS 64
 #define assert(cond)                                        \
     if (!(cond))                                            \
     {                                                       \
@@ -26,7 +25,8 @@ struct user_proc
     int pid;              // Process ID
 
     int parent_id; // Parent process
-    char name[16]; // name of the process
+    char name[16]; // name
+    
 };
 
 // system calls
@@ -96,7 +96,6 @@ struct context
     uint64 s11;
 };
 
-
 /// @brief The thread struct will contain all additional information we require
 ///        to handle for the threads. You might need to store more information
 ///        to implement parts of the tasks. Feel free to extend the struct
@@ -110,11 +109,7 @@ struct thread
     void *(*func)(void *);
 
     // Feel free to add more fields as needed
-    
     void *return_value;
-    // malloc(tcontext.sp, sizeof(struct thread))
-    
-    
 };
 
 /// @brief These are the attributes that can be set when creating a thread.

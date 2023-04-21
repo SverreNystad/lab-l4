@@ -10,6 +10,7 @@ void *main_tyield(void *arg)
     tyield();
     return 0;
 }
+
 //
 // wrapper so that it's OK if main() does not call exit() and setup main thread.
 //
@@ -22,23 +23,23 @@ void _main(int argc, char *argv[])
     extern struct thread *current_thread;
     extern int thread_count;
     extern int thread_entry;
-    thread_count = 0;
+    thread_count=0;
 
+    // Setup main thread
     struct thread *main_thread = (struct thread *)malloc(sizeof(struct thread));
-
-    main_thread->state = RUNNABLE;
-    main_thread->tid = thread_count;
+    main_thread->tid = 0;
     main_thread->tcontext.ra = (uint64) &thread_entry;
     main_thread->func = &main_tyield;
     main_thread->arg = 0;
-    thread_count= thread_count + 1;
+    main_thread->state=RUNNABLE;
+    
+    // Setup main thread in thread table
+    thread_count++;
     threads[0] = main_thread;
     current_thread = main_thread;
     
     tyield();
-
     int res = main(argc, argv);
-
     exit(res);
     // exit(0);
 }
